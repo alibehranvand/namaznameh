@@ -28,8 +28,7 @@ header .verse{font-size:13px;color:var(--ink2);font-style:italic;margin-top:8px}
 .card-header .day{font-size:12px;color:var(--gold);background:rgba(184,145,58,0.1);padding:4px 10px;border-radius:10px}
 .prayers{display:flex;flex-direction:column;gap:12px}
 .prayer{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.6);padding:12px 14px;border-radius:14px}
-.prayer-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--gold2),var(--gold));display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.prayer-icon svg{width:24px;height:24px}
+.prayer-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--gold2),var(--gold));display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;line-height:1}
 .prayer-info{flex:1}
 .prayer-name{font-size:15px;font-weight:600}
 .prayer-sub{font-size:11px;color:var(--ink2);margin-top:2px}
@@ -37,11 +36,9 @@ header .verse{font-size:13px;color:var(--ink2);font-style:italic;margin-top:8px}
 .btn{width:38px;height:38px;border-radius:10px;border:2px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
 .btn:active{transform:scale(0.92)}
 .btn .inner{width:12px;height:12px;border-radius:50%;background:#ddd;transition:all 0.2s}
-/* رنگ دکمه‌ها وقتی غیرفعالن */
 .btn.aval .inner{background:var(--green)}
 .btn.akhar .inner{background:var(--yellow)}
 .btn.qaza .inner{background:var(--red)}
-/* وقتی فعاله */
 .btn.on{background:var(--ink);border-color:var(--ink)}
 .btn.on .inner{background:#fff}
 .section-title{display:flex;justify-content:space-between;align-items:center;margin:24px 4px 12px}
@@ -94,7 +91,7 @@ footer .dua{font-size:13px;color:var(--gold);margin-bottom:6px;font-weight:500}
 <div class="container">
 
 <header>
-  <div class="ornament">✻ ✻ ✻</div>
+  <div class="ornament">✻ ✻ </div>
   <h1>نمازنامه</h1>
   <div class="verse">«إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا»</div>
   <div class="badge"><span class="dot"></span><span id="st">در حال بارگذاری...</span></div>
@@ -128,7 +125,7 @@ footer .dua{font-size:13px;color:var(--gold);margin-bottom:6px;font-weight:500}
 
 <div class="section-title"><h2>آمار ماهانه</h2></div>
 <div class="stats">
-  <div class="stat s1"><div class="stat-n" id="s1"></div><div class="stat-l">اول وقت</div></div>
+  <div class="stat s1"><div class="stat-n" id="s1">۰</div><div class="stat-l">اول وقت</div></div>
   <div class="stat s2"><div class="stat-n" id="s2">۰</div><div class="stat-l">آخر وقت</div></div>
   <div class="stat s3"><div class="stat-n" id="s3">۰</div><div class="stat-l">قضا</div></div>
 </div>
@@ -148,7 +145,7 @@ footer .dua{font-size:13px;color:var(--gold);margin-bottom:6px;font-weight:500}
 
 <footer>
   <div class="dua">اللهم تقبل منّی إنک أنت السمیع العلیم</div>
-  <div>نمازنامه • نسخه‌ی ۲.</div>
+  <div>نمازنامه • نسخه‌ی ۳.۰</div>
 </footer>
 </div>
 
@@ -158,24 +155,27 @@ footer .dua{font-size:13px;color:var(--gold);margin-bottom:6px;font-weight:500}
 // ===== IndexedDB =====
 const DB='nmz_db',ST='prayers',FB='nmz_fb';
 let db=null,fb=false;
-function oDB(){return new Promise(r=>{if(!indexedDB){r(null);return}const q=indexedDB.open(DB,1);q.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains(ST))d.createObjectStore(ST)};q.onsuccess=e=>r(e.target.result);q.onerror=()=>r(null)})}
+function oDB(){return new Promise(r=>{if(!window.indexedDB){r(null);return}const q=indexedDB.open(DB,1);q.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains(ST))d.createObjectStore(ST)};q.onsuccess=e=>r(e.target.result);q.onerror=()=>r(null)})}
 async function dSet(k,v){if(fb||!db){try{const a=JSON.parse(localStorage.getItem(FB)||'{}');if(v===null)delete a[k];else a[k]=v;localStorage.setItem(FB,JSON.stringify(a))}catch(e){}return}return new Promise(r=>{try{const t=db.transaction(ST,'readwrite'),s=t.objectStore(ST);if(v===null)s.delete(k);else s.put(v,k);t.oncomplete=()=>r();t.onerror=()=>r()}catch(e){r()}})}
 async function dAll(){if(fb||!db){try{return JSON.parse(localStorage.getItem(FB)||'{}')}catch(e){return{}}}return new Promise(r=>{try{const t=db.transaction(ST,'readonly'),s=t.objectStore(ST),res={};const q=s.openCursor();q.onsuccess=e=>{const c=e.target.result;if(c){res[c.key]=c.value;c.continue()}else r(res)};q.onerror=()=>r({})}catch(e){r({})}})}
 async function dClear(d){if(fb||!db){localStorage.setItem(FB,JSON.stringify(d));return}return new Promise(r=>{try{const t=db.transaction(ST,'readwrite'),s=t.objectStore(ST);s.clear();Object.entries(d).forEach(([k,v])=>s.put(v,k));t.oncomplete=()=>r();t.onerror=()=>r()}catch(e){r()}})}
 
 // ===== Data =====
 const PR=[
-  {id:'sobh',name:'نماز صبح',sub:'نماز فجر',icon:'<svg viewBox="0 0 24 24" fill="white"><circle cx="12" cy="13" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>'},
-  {id:'zohr',name:'نماز ظهر',sub:'ظهر و عصر',icon:'<svg viewBox="0 0 24 24" fill="white"><circle cx="12" cy="10" r="4"/><path d="M4 20c2-2 5-3 8-3s6 1 8 3" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>'},
-  {id:'shab',name:'نماز شب',sub:'مغرب و عشا',icon:'<svg viewBox="0 0 24 24" fill="white"><path d="M20 14A7 7 0 1 1 10 4a5.5 5.5 0 0 0 10 10z"/><circle cx="16" cy="6" r="0.8" fill="white"/><circle cx="19" cy="9" r="0.5" fill="white"/></svg>'}
+  {id:'sobh',name:'نماز صبح',sub:'نماز فجر',icon:'🌅'},
+  {id:'zohr',name:'نماز ظهر',sub:'ظهر و عصر',icon:'☀️'},
+  {id:'shab',name:'نماز شب',sub:'مغرب و عشا',icon:'🌙'}
 ];
 const WD=['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'];
 const MO=['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
 const STS=[['aval','اول وقت','a'],['akhar','آخر وقت','b'],['qaza','قضا','c']];
 
+// ارقام فارسی - کامل و درست (۱۰ رقم)
+const FAD='۰۱۲۳۴۵۶۷۸۹';
+const fa=n=>String(n).replace(/\d/g,d=>FAD[d]);
+
 let data={},vY,vM,tY,tM,tD,sel,pC,bC;
 const dk=(y,m,d)=>`${y}/${String(m).padStart(2,'0')}/${String(d).padStart(2,'0')}`;
-const fa=n=>String(n).replace(/\d/g,d=>'۰۱۳۴۵۶۷۹'[d]);
 
 async function save(p,s){
   if(!data[sel])data[sel]={};
@@ -204,10 +204,10 @@ function render(){
     const row=document.createElement('div');row.className='prayer';
     let btns='';
     STS.forEach(([k,label,cls])=>{
-      const on=cur===k?'on':'';
-      btns+=`<button class="btn ${cls} ${on}" data-p="${pr.id}" data-s="${k}"><span class="inner"></span></button>`;
+      const on=(cur===k)?'on':'';
+      btns+='<button class="btn '+k+' '+on+'" data-p="'+pr.id+'" data-s="'+k+'"><span class="inner"></span></button>';
     });
-    row.innerHTML=`<div class="prayer-icon">${pr.icon}</div><div class="prayer-info"><div class="prayer-name">${pr.name}</div><div class="prayer-sub">${pr.sub}</div></div><div class="prayer-btns">${btns}</div>`;
+    row.innerHTML='<div class="prayer-icon">'+pr.icon+'</div><div class="prayer-info"><div class="prayer-name">'+pr.name+'</div><div class="prayer-sub">'+pr.sub+'</div></div><div class="prayer-btns">'+btns+'</div>';
     list.appendChild(row);
   });
   list.querySelectorAll('.btn').forEach(b=>{
@@ -221,7 +221,7 @@ function render(){
 }
 
 function cal(){
-  document.getElementById('ml').textContent=`${MO[vM-1]} ${fa(vY)}`;
+  document.getElementById('ml').textContent=MO[vM-1]+' '+fa(vY);
   const dim=jalaali.jalaaliMonthLength(vY,vM);
   const g1=jalaali.toGregorian(vY,vM,1),gd=new Date(g1.gy,g1.gm-1,g1.gd);
   let fw=(gd.getDay()+1)%7;
@@ -229,7 +229,7 @@ function cal(){
   for(let i=0;i<fw;i++){const e=document.createElement('div');e.className='day empty';c.appendChild(e)}
   for(let d=1;d<=dim;d++){
     const k=dk(vY,vM,d),dd=data[k]||{};
-    const isT=vY===tY&&vM===tM&&d===tD,isS=k===sel;
+    const isT=(vY===tY&&vM===tM&&d===tD),isS=(k===sel);
     const cell=document.createElement('div');
     cell.className='day'+(isT?' today':'')+(isS?' sel':'');
     const num=document.createElement('div');num.textContent=fa(d);cell.appendChild(num);
@@ -267,19 +267,19 @@ function rBar(d,dim){
   const ctx=document.getElementById('bc').getContext('2d');
   if(bC)bC.destroy();
   const labels=Array.from({length:dim},(_,i)=>fa(i+1));
-  bC=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'نماز',data:d,backgroundColor:'rgba(61,122,95,0.7)',borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{titleFont:{family:'Vazirmatn'},bodyFont:{family:'Vazirmatn'},callbacks:{title:i=>`${i[0].label} ${MO[vM-1]}`,label:i=>`${fa(i.raw)} نماز`}}},scales:{y:{beginAtZero:true,max:3,ticks:{stepSize:1,font:{family:'Vazirmatn',size:10},color:'#5a6b5c'},grid:{color:'rgba(184,145,58,0.1)'}},x:{ticks:{font:{family:'Vazirmatn',size:9},color:'#5a6b5c',maxRotation:0,callback:(v,i)=>(i+1)%5===0||i===0?this.getLabelForValue(v):''},grid:{display:false}}}}});
+  bC=new Chart(ctx,{type:'bar',data:{labels:labels,datasets:[{label:'نماز',data:d,backgroundColor:'rgba(61,122,95,0.7)',borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{titleFont:{family:'Vazirmatn'},bodyFont:{family:'Vazirmatn'},callbacks:{title:function(i){return i[0].label+' '+MO[vM-1]},label:function(i){return fa(i.raw)+' نماز'}}}},scales:{y:{beginAtZero:true,max:3,ticks:{stepSize:1,font:{family:'Vazirmatn',size:10},color:'#5a6b5c'},grid:{color:'rgba(184,145,58,0.1)'}},x:{ticks:{font:{family:'Vazirmatn',size:9},color:'#5a6b5c',maxRotation:0,callback:function(v,i){return (i+1)%5===0||i===0?this.getLabelForValue(v):''}},grid:{display:false}}}}});
 }
 
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
 
 async function exp(){
   const all=await dAll();
-  const p={app:'nmz',v:2,t:new Date().toISOString(),data:all};
+  const p={app:'nmz',v:3,t:new Date().toISOString(),data:all};
   const b=new Blob([JSON.stringify(p,null,2)],{type:'application/json'});
   const u=URL.createObjectURL(b);
   const a=document.createElement('a');
   const n=new Date(),j=jalaali.toJalaali(n.getFullYear(),n.getMonth()+1,n.getDate());
-  a.href=u;a.download=`namaz-${j.jy}-${String(j.jm).padStart(2,'0')}-${String(j.jd).padStart(2,'0')}.json`;
+  a.href=u;a.download='namaz-'+j.jy+'-'+String(j.jm).padStart(2,'0')+'-'+String(j.jd).padStart(2,'0')+'.json';
   document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);
   toast('✅ دانلود شد');
 }
@@ -289,7 +289,7 @@ function imp(f){
   r.onload=async e=>{
     try{
       const p=JSON.parse(e.target.result);
-      if(!p.data||p.app!=='nmz'){toast('❌ فایل نامعتبر');return}
+      if(!p.data||(p.app!=='nmz'&&p.app!=='namaznameh')){toast('❌ فایل نامعتبر');return}
       if(!confirm('بازیابی از '+(p.t||'').slice(0,10)+'؟ اطلاعات فعلی جایگزین می‌شود.'))return;
       await dClear(p.data);data=p.data;render();cal();stats();toast('✅ بازیابی شد');
     }catch(err){toast('❌ خطا')}
