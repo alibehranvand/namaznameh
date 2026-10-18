@@ -19,9 +19,25 @@ header{text-align:center;padding:24px 16px 16px}
 header .ornament{font-size:14px;color:var(--gold);letter-spacing:8px;margin-bottom:8px}
 header h1{font-size:26px;font-weight:600;margin-bottom:6px}
 header .verse{font-size:13px;color:var(--ink2);font-style:italic;margin-top:8px}
+.hello{font-size:13px;color:var(--gold);margin-top:10px;font-weight:500}
 .badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--green);background:rgba(61,122,95,0.1);padding:5px 12px;border-radius:20px;margin-top:10px}
 .badge .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+/* ===== Auth ===== */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;position:relative;z-index:1}
+.auth-card{background:var(--card);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:24px;padding:28px 22px;width:100%;max-width:360px;text-align:center;box-shadow:0 8px 32px rgba(45,62,47,0.12)}
+.auth-icon{font-size:46px;margin-bottom:8px}
+.auth-card h2{font-size:19px;font-weight:600;margin-bottom:4px}
+.auth-sub{font-size:12px;color:var(--ink2);margin-bottom:18px}
+.field{text-align:right;margin-bottom:12px}
+.field label{display:block;font-size:12px;color:var(--ink2);margin-bottom:5px}
+.field input{width:100%;padding:11px 12px;border-radius:12px;border:1.5px solid var(--border);background:#fff;font-family:inherit;font-size:14px;color:var(--ink);outline:none}
+.field input:focus{border-color:var(--gold)}
+.auth-btn{width:100%;padding:12px;border:none;border-radius:12px;background:var(--ink);color:#fff;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;margin-top:6px}
+.auth-btn:active{transform:scale(0.98)}
+.auth-err{font-size:11px;color:var(--red);margin-top:8px;min-height:16px}
+.auth-link{background:none;border:none;color:var(--ink2);font-size:11px;font-family:inherit;cursor:pointer;margin-top:8px;text-decoration:underline}
+/* ===== App ===== */
 .card{background:var(--card);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:20px;padding:20px;margin:16px 0;box-shadow:0 8px 32px rgba(45,62,47,0.08)}
 .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1px dashed var(--border)}
 .card-header .date{font-size:15px;font-weight:500}
@@ -88,12 +104,39 @@ footer .dua{font-size:13px;color:var(--gold);margin-bottom:6px;font-weight:500}
 </style>
 </head>
 <body>
-<div class="container">
+
+<!-- ===== صفحه ورود / ثبت‌نام ===== -->
+<div class="auth-wrap" id="authScreen" style="display:none">
+  <div class="auth-card">
+    <div class="auth-icon">🕌</div>
+    <h2 id="authTitle">نمازنامه</h2>
+    <p class="auth-sub" id="authSub">...</p>
+    <div class="field" id="nameField" style="display:none">
+      <label>نام کاربری</label>
+      <input id="inName" type="text" placeholder="مثلاً: علی">
+    </div>
+    <div class="field">
+      <label>رمز عبور</label>
+      <input id="inPass" type="password" placeholder="••••••">
+    </div>
+    <div class="field" id="confirmField" style="display:none">
+      <label>تکرار رمز عبور</label>
+      <input id="inPass2" type="password" placeholder="••••••">
+    </div>
+    <button class="auth-btn" id="authBtn">ورود</button>
+    <div class="auth-err" id="authErr"></div>
+    <button class="auth-link" id="forgotBtn" style="display:none">رمزم را فراموش کردم</button>
+  </div>
+</div>
+
+<!-- ===== برنامه اصلی ===== -->
+<div class="container" id="app" style="display:none">
 
 <header>
   <div class="ornament">✻ ✻ </div>
   <h1>نمازنامه</h1>
   <div class="verse">«إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا»</div>
+  <div class="hello" id="hello"></div>
   <div class="badge"><span class="dot"></span><span id="st">در حال بارگذاری...</span></div>
 </header>
 
@@ -134,6 +177,15 @@ footer .dua{font-size:13px;color:var(--gold);margin-bottom:6px;font-weight:500}
 <div class="chart"><h3>روند ماهانه</h3><div class="chart-wrap"><canvas id="bc"></canvas></div></div>
 
 <div class="backup">
+  <h3>👤 حساب کاربری</h3>
+  <p id="acctName">—</p>
+  <div class="backup-acts">
+    <button class="bbtn" id="chPass">🔑 تغییر رمز</button>
+    <button class="bbtn pri" id="logout">🚪 خروج</button>
+  </div>
+</div>
+
+<div class="backup">
   <h3>🛡️ پشتیبان‌گیری</h3>
   <p>اطلاعات در حافظه‌ی پایدار مرورگر ذخیره می‌شه. هر از گاهی یه نسخه‌ی پشتیبان دانلود کن.</p>
   <div class="backup-acts">
@@ -145,7 +197,7 @@ footer .dua{font-size:13px;color:var(--gold);margin-bottom:6px;font-weight:500}
 
 <footer>
   <div class="dua">اللهم تقبل منّی إنک أنت السمیع العلیم</div>
-  <div>نمازنامه • نسخه‌ی ۳.۰</div>
+  <div>نمازنامه • نسخه‌ی ۴.۰</div>
 </footer>
 </div>
 
@@ -160,6 +212,59 @@ async function dSet(k,v){if(fb||!db){try{const a=JSON.parse(localStorage.getItem
 async function dAll(){if(fb||!db){try{return JSON.parse(localStorage.getItem(FB)||'{}')}catch(e){return{}}}return new Promise(r=>{try{const t=db.transaction(ST,'readonly'),s=t.objectStore(ST),res={};const q=s.openCursor();q.onsuccess=e=>{const c=e.target.result;if(c){res[c.key]=c.value;c.continue()}else r(res)};q.onerror=()=>r({})}catch(e){r({})}})}
 async function dClear(d){if(fb||!db){localStorage.setItem(FB,JSON.stringify(d));return}return new Promise(r=>{try{const t=db.transaction(ST,'readwrite'),s=t.objectStore(ST);s.clear();Object.entries(d).forEach(([k,v])=>s.put(v,k));t.oncomplete=()=>r();t.onerror=()=>r()}catch(e){r()}})}
 
+// ===== Auth =====
+const AUTH_KEY='nmz_auth';
+function getUser(){try{return JSON.parse(localStorage.getItem(AUTH_KEY))}catch(e){return null}}
+function setUser(u){localStorage.setItem(AUTH_KEY,JSON.stringify(u))}
+function sessGet(){try{return sessionStorage.getItem('nmz_sess')}catch(e){return null}}
+function sessSet(){try{sessionStorage.setItem('nmz_sess','1')}catch(e){}}
+function sessDel(){try{sessionStorage.removeItem('nmz_sess')}catch(e){}}
+async function hash(s){
+  try{
+    if(window.crypto&&crypto.subtle){
+      const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
+      return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+  }catch(e){}
+  let h=0;for(let i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))|0}
+  return 'x'+h;
+}
+
+let authMode='login';
+function showAuth(mode){
+  authMode=mode;
+  document.getElementById('authScreen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  const u=getUser();
+  const nameF=document.getElementById('nameField');
+  const confF=document.getElementById('confirmField');
+  const forgot=document.getElementById('forgotBtn');
+  if(mode==='register'){
+    document.getElementById('authTitle').textContent='ساخت حساب کاربری';
+    document.getElementById('authSub').textContent='یه نام و رمز برای خودت بذار تا نمازنامه‌ات شخصی بشه';
+    nameF.style.display='block';confF.style.display='block';forgot.style.display='none';
+    document.getElementById('authBtn').textContent='ثبت و ورود';
+  }else{
+    document.getElementById('authTitle').textContent='خوش آمدی، '+u.name;
+    document.getElementById('authSub').textContent='رمز عبورت رو وارد کن';
+    nameF.style.display='none';confF.style.display='none';forgot.style.display='block';
+    document.getElementById('authBtn').textContent='ورود';
+  }
+  document.getElementById('authErr').textContent='';
+  document.getElementById('inPass').value='';
+  document.getElementById('inPass2').value='';
+}
+
+let appStarted=false;
+function enterApp(){
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('app').style.display='block';
+  const u=getUser();
+  document.getElementById('hello').textContent='سلام '+u.name+' 🌿';
+  document.getElementById('acctName').textContent='ورود به عنوان: '+u.name;
+  if(!appStarted){appStarted=true;startApp()}
+}
+
 // ===== Data =====
 const PR=[
   {id:'sobh',name:'نماز صبح',sub:'نماز فجر',icon:'🌅'},
@@ -169,8 +274,6 @@ const PR=[
 const WD=['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'];
 const MO=['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
 const STS=[['aval','اول وقت','a'],['akhar','آخر وقت','b'],['qaza','قضا','c']];
-
-// ارقام فارسی - کامل و درست (۱۰ رقم)
 const FAD='۰۱۲۳۴۵۶۷۸۹';
 const fa=n=>String(n).replace(/\d/g,d=>FAD[d]);
 
@@ -183,8 +286,7 @@ async function save(p,s){
   else{data[sel][p]=s;await dSet(sel,data[sel])}
 }
 
-async function init(){
-  db=await oDB();
+async function startApp(){
   document.getElementById('st').textContent=db?'ذخیره پایدار (IndexedDB)':'ذخیره محلی';
   data=await dAll();
   const n=new Date(),j=jalaali.toJalaali(n.getFullYear(),n.getMonth()+1,n.getDate());
@@ -274,7 +376,7 @@ function toast(m){const t=document.getElementById('toast');t.textContent=m;t.cla
 
 async function exp(){
   const all=await dAll();
-  const p={app:'nmz',v:3,t:new Date().toISOString(),data:all};
+  const p={app:'nmz',v:4,t:new Date().toISOString(),data:all};
   const b=new Blob([JSON.stringify(p,null,2)],{type:'application/json'});
   const u=URL.createObjectURL(b);
   const a=document.createElement('a');
@@ -303,10 +405,62 @@ function bind(){
   document.getElementById('ex').addEventListener('click',exp);
   document.getElementById('im').addEventListener('click',()=>document.getElementById('fi').click());
   document.getElementById('fi').addEventListener('change',e=>{if(e.target.files[0])imp(e.target.files[0]);e.target.value=''});
+
+  // Auth events
+  document.getElementById('authBtn').addEventListener('click',doAuth);
+  document.getElementById('inPass').addEventListener('keydown',e=>{if(e.key==='Enter')doAuth()});
+  document.getElementById('inPass2').addEventListener('keydown',e=>{if(e.key==='Enter')doAuth()});
+  document.getElementById('inName').addEventListener('keydown',e=>{if(e.key==='Enter')doAuth()});
+  document.getElementById('logout').addEventListener('click',()=>{sessDel();showAuth('login')});
+  document.getElementById('chPass').addEventListener('click',async()=>{
+    const u=getUser();
+    const old=prompt('رمز فعلی:');
+    if(old===null||old==='')return;
+    if(await hash(old)!==u.hash){toast('❌ رمز فعلی اشتباه است');return}
+    const nw=prompt('رمز جدید (حداقل ۴ حرف):');
+    if(!nw||nw.length<4){toast('❌ رمز جدید خیلی کوتاه است');return}
+    u.hash=await hash(nw);setUser(u);toast('✅ رمز تغییر کرد');
+  });
+  document.getElementById('forgotBtn').addEventListener('click',async()=>{
+    if(!confirm('این قفل فقط روی همین گوشی است. با بازنشانی، رمز جدیدی می‌گذاری و اطلاعاتت حفظ می‌شود. ادامه می‌دهی؟'))return;
+    const nw=prompt('رمز جدید (حداقل ۴ حرف):');
+    if(!nw||nw.length<4){toast('❌ خیلی کوتاه');return}
+    const u=getUser();u.hash=await hash(nw);setUser(u);
+    sessSet();enterApp();toast('✅ رمز بازنشانی شد');
+  });
+}
+
+async function doAuth(){
+  const err=document.getElementById('authErr');
+  const pass=document.getElementById('inPass').value;
+  if(authMode==='register'){
+    const name=document.getElementById('inName').value.trim();
+    const pass2=document.getElementById('inPass2').value;
+    if(!name){err.textContent='نام کاربری رو وارد کن';return}
+    if(pass.length<4){err.textContent='رمز باید حداقل ۴ حرف باشه';return}
+    if(pass!==pass2){err.textContent='تکرار رمز مطابقت نداره';return}
+    const h=await hash(pass);
+    setUser({name:name,hash:h});
+    sessSet();enterApp();
+  }else{
+    const u=getUser();
+    const h=await hash(pass);
+    if(h===u.hash){sessSet();enterApp()}
+    else err.textContent='رمز اشتباه است';
+  }
+}
+
+// ===== Boot =====
+async function boot(){
+  db=await oDB();
+  const u=getUser();
+  if(!u){showAuth('register')}
+  else if(sessGet()){enterApp()}
+  else{showAuth('login')}
 }
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
-init();
+boot();
 </script>
 </body>
 </html>
