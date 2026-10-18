@@ -1,0 +1,21 @@
+{
+  "name": "نمازنامه • ردیاب نمازهای یومیه",
+  "short_name": "نمازنامه",
+  "description": "سامانه ردیابی نمازهای یومیه با تقویم شمسی",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f1e3",
+  "theme_color": "#2d3e2f",
+  "lang": "fa",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
