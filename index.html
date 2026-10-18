@@ -193,7 +193,7 @@ footer .dua{font-size:13px;color:var(--gold);margin-bottom:6px;font-weight:500}
 
 <div class="backup">
   <h3>🛡️ پشتیبان‌گیری</h3>
-  <p>فایل پشتیبان فقط شامل‌ی اطلاعات همین کاربره. هر کاربر جدا بک‌آپ می‌گیره.</p>
+  <p>فایل پشتیبان فقط شامل اطلاعات همین کاربره. هر کاربر جدا بک‌آپ می‌گیره.</p>
   <div class="backup-acts">
     <button class="bbtn pri" id="ex">📥 دانلود پشتیبان</button>
     <button class="bbtn" id="im">📤 بازیابی</button>
@@ -203,7 +203,7 @@ footer .dua{font-size:13px;color:var(--gold);margin-bottom:6px;font-weight:500}
 
 <footer>
   <div class="dua">اللهم تقبل منّی إنک أنت السمیع العلیم</div>
-  <div>نمازنامه • نسخه‌ی ۵.۰ (چندکاربره)</div>
+  <div>نمازنامه • نسخه‌ی ۵.۱ (چندکاربره)</div>
 </footer>
 </div>
 
@@ -235,9 +235,8 @@ async function hash(s){
   return 'x'+h;
 }
 
-let CUR=null; // کاربر فعلی
+let CUR=null;
 
-// داده‌های کاربر فعلی: کلیدها در دیتابیس با پیشوند «نام‌کاربر|» ذخیره می‌شن
 async function loadUserData(){
   const all=await dAll();
   const res={};const pre=CUR+'|';
@@ -284,44 +283,44 @@ function showAuth(mode){
   document.getElementById('inPass2').value='';
 }
 
-let appStarted=false;
 async function enterApp(){
   document.getElementById('authScreen').style.display='none';
   document.getElementById('app').style.display='block';
   document.getElementById('hello').textContent='سلام '+CUR+' 🌿';
   document.getElementById('acctName').textContent='ورود به عنوان: '+CUR;
+  document.getElementById('st').textContent=db?'ذخیره پایدار (IndexedDB)':'ذخیره محلی';
   data=await loadUserData();
   resetView();
-  if(!appStarted){
-    appStarted=true;
-    document.getElementById('st').textContent=db?'ذخیره پایدار (IndexedDB)':'ذخیره محلی';
-    bind();
-  }
   render();cal();stats();
 }
 
 async function doAuth(){
   const err=document.getElementById('authErr');
-  const pass=document.getElementById('inPass').value;
-  if(authMode==='register'){
-    const name=document.getElementById('inName').value.trim();
-    const pass2=document.getElementById('inPass2').value;
-    if(!name){err.textContent='نام کاربری رو وارد کن';return}
-    if(pass.length<4){err.textContent='رمز باید حداقل ۴ حرف باشه';return}
-    if(pass!==pass2){err.textContent='تکرار رمز مطابقت نداره';return}
-    const users=getUsers();
-    if(users.some(u=>u.name===name)){err.textContent='این نام قبلاً ثبت شده';return}
-    const h=await hash(pass);
-    users.push({name:name,hash:h});
-    setUsers(users);
-    CUR=name;sessSet(name);enterApp();
-  }else{
-    const name=document.getElementById('inUser').value;
-    const u=getUsers().find(x=>x.name===name);
-    if(!u){err.textContent='کاربری پیدا نشد';return}
-    const h=await hash(pass);
-    if(h===u.hash){CUR=name;sessSet(name);enterApp()}
-    else err.textContent='رمز اشتباه است';
+  try{
+    const pass=document.getElementById('inPass').value;
+    if(authMode==='register'){
+      const name=document.getElementById('inName').value.trim();
+      const pass2=document.getElementById('inPass2').value;
+      if(!name){err.textContent='نام کاربری رو وارد کن';return}
+      if(pass.length<4){err.textContent='رمز باید حداقل ۴ حرف باشه';return}
+      if(pass!==pass2){err.textContent='تکرار رمز مطابقت نداره';return}
+      const users=getUsers();
+      if(users.some(u=>u.name===name)){err.textContent='این نام قبلاً ثبت شده';return}
+      const h=await hash(pass);
+      users.push({name:name,hash:h});
+      setUsers(users);
+      CUR=name;sessSet(name);
+      await enterApp();
+    }else{
+      const name=document.getElementById('inUser').value;
+      const u=getUsers().find(x=>x.name===name);
+      if(!u){err.textContent='کاربری پیدا نشد';return}
+      const h=await hash(pass);
+      if(h===u.hash){CUR=name;sessSet(name);await enterApp()}
+      else err.textContent='رمز اشتباه است';
+    }
+  }catch(e){
+    err.textContent='خطا: '+(e.message||e);
   }
 }
 
@@ -334,7 +333,8 @@ const PR=[
 const WD=['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'];
 const MO=['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
 const STS=[['aval','اول وقت','a'],['akhar','آخر وقت','b'],['qaza','قضا','c']];
-const FAD='۰۱۲۴۵۶۸۹';
+// ارقام فارسی به صورت آرایه (هر رقم جدا، بدون امکان جاافتادن)
+const FAD=['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
 const fa=n=>String(n).replace(/\d/g,d=>FAD[d]);
 
 let data={},vY,vM,tY,tM,tD,sel,pC,bC;
@@ -468,12 +468,13 @@ function imp(f){
 }
 
 function bind(){
+  // دکمه‌های برنامه
   document.getElementById('pm').addEventListener('click',()=>{vM--;if(vM<1){vM=12;vY--}cal();stats()});
   document.getElementById('nm').addEventListener('click',()=>{vM++;if(vM>12){vM=1;vY++}cal();stats()});
   document.getElementById('ex').addEventListener('click',exp);
   document.getElementById('im').addEventListener('click',()=>document.getElementById('fi').click());
   document.getElementById('fi').addEventListener('change',e=>{if(e.target.files[0])imp(e.target.files[0]);e.target.value=''});
-
+  // دکمه‌های صفحه ورود (از همون اول متصل می‌شن!)
   document.getElementById('authBtn').addEventListener('click',doAuth);
   ['inPass','inPass2','inName'].forEach(id=>{
     document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')doAuth()});
@@ -502,7 +503,7 @@ function bind(){
   document.getElementById('forgotBtn').addEventListener('click',async()=>{
     const name=document.getElementById('inUser').value;
     if(!name)return;
-    if(!confirm('این قفل فقط روی همین گوشی است. رمز کاربر «'+name+'» بازنشانی می‌شود و اطلاعاتش حفظ می‌ماند. ادامه می‌دهی؟'))return;
+    if(!confirm('رمز کاربر «'+name+'» بازنشانی می‌شود و اطلاعاتش حفظ می‌ماند. ادامه می‌دهی؟'))return;
     const nw=prompt('رمز جدید (حداقل ۴ حرف):');
     if(!nw||nw.length<4){toast('❌ خیلی کوتاه');return}
     const users=getUsers();const u=users.find(x=>x.name===name);
@@ -514,9 +515,10 @@ function bind(){
 // ===== Boot =====
 async function boot(){
   db=await oDB();
+  bind(); // ← از همون اول همه دکمه‌ها گوش می‌دن
   const users=getUsers();
   const s=sessGet();
-  if(s&&users.some(u=>u.name===s)){CUR=s;enterApp()}
+  if(s&&users.some(u=>u.name===s)){CUR=s;await enterApp()}
   else if(users.length===0){showAuth('register')}
   else{showAuth('login')}
 }
